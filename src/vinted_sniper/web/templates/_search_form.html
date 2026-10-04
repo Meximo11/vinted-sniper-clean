@@ -42,78 +42,81 @@
 
       {% if builder_enabled %}
       <div id="builder" hidden>
-
-        <div class="builder-row">
-          <div class="field">
-            <label for="b-tld">Seite</label>
-            <select id="b-tld">
-              {% for t in known_tlds %}
-              <option value="{{ t }}" {% if t == default_tld %}selected{% endif %}>vinted.{{ t }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="field">
-            <label for="b-text">Suchbegriff</label>
-            <input type="text" id="b-text" placeholder="nike air max">
-          </div>
-          <div class="field">
-            <label for="b-price-from">Preis von</label>
-            <input type="text" id="b-price-from" inputmode="decimal" placeholder="beliebig">
-          </div>
-          <div class="field">
-            <label for="b-price-to">Preis bis</label>
-            <input type="text" id="b-price-to" inputmode="decimal" placeholder="beliebig">
-          </div>
-        </div>
-
-        <div class="builder-block">
-          <span class="step-head">Kategorie</span>
-          <div class="crumb-row" id="b-crumbs"></div>
-          <div class="check-grid" id="b-cats" aria-busy="true">
-            <div class="skeleton-row">
-              <span class="skeleton bar"></span>
-              <span class="skeleton bar"></span>
-              <span class="skeleton bar"></span>
+        {# .panel-body is the clipped edge the panel grows out of; see app.css
+           "Panels that open". Nothing about it is visible at rest. #}
+        <div class="panel-body">
+          <div class="builder-row">
+            <div class="field">
+              <label for="b-tld">Seite</label>
+              <select id="b-tld">
+                {% for t in known_tlds %}
+                <option value="{{ t }}" {% if t == default_tld %}selected{% endif %}>vinted.{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label for="b-text">Suchbegriff</label>
+              <input type="text" id="b-text" placeholder="nike air max">
+            </div>
+            <div class="field">
+              <label for="b-price-from">Preis von</label>
+              <input type="text" id="b-price-from" inputmode="decimal" placeholder="beliebig">
+            </div>
+            <div class="field">
+              <label for="b-price-to">Preis bis</label>
+              <input type="text" id="b-price-to" inputmode="decimal" placeholder="beliebig">
             </div>
           </div>
-        </div>
 
-        <div class="builder-block">
-          <label for="b-brand" class="step-head">Marken</label>
-          <div class="check-grid" id="b-brand-chips" aria-busy="true">
-            <span class="skeleton bar" style="width: 6rem"></span>
-            <span class="skeleton bar" style="width: 5rem"></span>
-            <span class="skeleton bar" style="width: 7rem"></span>
-          </div>
-          <div class="combo">
-            <input type="text" id="b-brand" placeholder="tippen, z. B. nike oder zara"
-                   autocomplete="off" role="combobox" aria-expanded="false"
-                   aria-controls="b-brand-list" aria-autocomplete="list">
-            <div class="combo-list" id="b-brand-list" hidden role="listbox"></div>
-          </div>
-        </div>
-
-        <div class="builder-row">
-          <div>
-            <span class="step-head">Zustand</span>
-            <div class="option-list" id="b-status" aria-busy="true">
-              <span class="skeleton bar" style="width: 8rem"></span>
+          <div class="builder-block">
+            <span class="step-head">Kategorie</span>
+            <div class="crumb-row" id="b-crumbs"></div>
+            <div class="check-grid" id="b-cats" aria-busy="true">
+              <div class="skeleton-row">
+                <span class="skeleton skel-bar"></span>
+                <span class="skeleton skel-bar"></span>
+                <span class="skeleton skel-bar"></span>
+              </div>
             </div>
           </div>
-          <div>
-            <span class="step-head">Farbe</span>
-            <div class="option-list" id="b-color" aria-busy="true">
-              <span class="skeleton bar" style="width: 6rem"></span>
+
+          <div class="builder-block">
+            <label for="b-brand" class="step-head">Marken</label>
+            <div class="check-grid" id="b-brand-chips" aria-busy="true">
+              <span class="skeleton skel-bar" style="width: 6rem"></span>
+              <span class="skeleton skel-bar" style="width: 5rem"></span>
+              <span class="skeleton skel-bar" style="width: 7rem"></span>
+            </div>
+            <div class="combo">
+              <input type="text" id="b-brand" placeholder="tippen, z. B. nike oder zara"
+                     autocomplete="off" role="combobox" aria-expanded="false"
+                     aria-controls="b-brand-list" aria-autocomplete="list">
+              <div class="combo-list" id="b-brand-list" hidden role="listbox"></div>
             </div>
           </div>
-        </div>
 
-        <div class="builder-block" id="b-size-wrap" hidden>
-          <span class="step-head">Größe</span>
-          <div class="option-list" id="b-size"></div>
-        </div>
+          <div class="builder-row">
+            <div>
+              <span class="step-head">Zustand</span>
+              <div class="option-list" id="b-status" aria-busy="true">
+                <span class="skeleton skel-bar" style="width: 8rem"></span>
+              </div>
+            </div>
+            <div>
+              <span class="step-head">Farbe</span>
+              <div class="option-list" id="b-color" aria-busy="true">
+                <span class="skeleton skel-bar" style="width: 6rem"></span>
+              </div>
+            </div>
+          </div>
 
-        <p class="hint" id="b-preview"></p>
+          <div class="builder-block" id="b-size-wrap" hidden>
+            <span class="step-head">Größe</span>
+            <div class="option-list" id="b-size"></div>
+          </div>
+
+          <p class="hint" id="b-preview"></p>
+        </div>
       </div>
       {% endif %}
     </div>
@@ -143,28 +146,33 @@
       </button>
 
       <div id="fein" class="disclosure-panel" hidden>
-        <div class="form-grid">
-          <div class="field">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" placeholder="Wird aus der Suche abgeleitet">
-          </div>
-          <div class="field">
-            <label for="interval">Abfrageintervall (Sekunden)</label>
-            <input type="text" id="interval" name="interval"
-                   value="{{ default_interval }}" inputmode="numeric">
-            <p class="hint">Mindestens {{ min_interval }} s.</p>
-          </div>
-          <div class="field">
-            <label for="max_total_price">Maximaler Gesamtpreis</label>
-            <input type="text" id="max_total_price" name="max_total_price"
-                   inputmode="decimal" placeholder="z. B. 40">
-            <p class="hint">Was du wirklich zahlst, inklusive Käuferschutz.</p>
-          </div>
-          <div class="field">
-            <label for="banned_keywords">Ausgeschlossene Wörter</label>
-            <input type="text" id="banned_keywords" name="banned_keywords"
-                   placeholder="fake, replica">
-            <p class="hint">Mit Komma getrennt.</p>
+        {# The padding, plane and radius moved from #fein onto this wrapper when
+           the panel learned to open; on the outer box they would have survived
+           the collapse as a 2rem empty band. See app.css "Panels that open". #}
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" placeholder="Wird aus der Suche abgeleitet">
+            </div>
+            <div class="field">
+              <label for="interval">Abfrageintervall (Sekunden)</label>
+              <input type="text" id="interval" name="interval"
+                     value="{{ default_interval }}" inputmode="numeric">
+              <p class="hint">Mindestens {{ min_interval }} s.</p>
+            </div>
+            <div class="field">
+              <label for="max_total_price">Maximaler Gesamtpreis</label>
+              <input type="text" id="max_total_price" name="max_total_price"
+                     inputmode="decimal" placeholder="z. B. 40">
+              <p class="hint">Was du wirklich zahlst, inklusive Käuferschutz.</p>
+            </div>
+            <div class="field">
+              <label for="banned_keywords">Ausgeschlossene Wörter</label>
+              <input type="text" id="banned_keywords" name="banned_keywords"
+                     placeholder="fake, replica">
+              <p class="hint">Mit Komma getrennt.</p>
+            </div>
           </div>
         </div>
       </div>

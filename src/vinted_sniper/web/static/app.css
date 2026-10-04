@@ -359,11 +359,19 @@ textarea {
   gap: var(--s3);
   align-items: center;
   padding: var(--s1) var(--s3);
+  border-radius: var(--r-control);
   color: var(--ink-1);
   font-size: var(--t-small);
   font-weight: 660;
   letter-spacing: -0.01em;
   text-decoration: none;
+  transition: background-color var(--dur) var(--ease);
+}
+
+/* The one link in the app that took you nowhere you were not already, and the
+   only one that gave nothing back on hover. Same tint a nav row gets. */
+.brand:hover {
+  background: var(--surface-2);
 }
 
 .brand .mark {
@@ -399,6 +407,7 @@ textarea {
   text-decoration: none;
   transition:
     background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
     color var(--dur) var(--ease);
 }
 
@@ -425,6 +434,15 @@ textarea {
 
 .nav-link[aria-current="page"] .ico {
   color: var(--ink-1);
+}
+
+/* The current row used to be the one row that answered nothing to the pointer:
+   :hover and [aria-current] have equal specificity, so the later current-page
+   background simply won and the hover was overwritten before it could be seen.
+   Deepening the ring it already has says "this one responds" without changing
+   the colour language that says "this is the page you are on". */
+.nav-link[aria-current="page"]:hover {
+  box-shadow: inset 0 0 0 1px var(--ink-4);
 }
 
 .nav-count {
@@ -564,6 +582,21 @@ textarea {
   background: none;
   color: var(--ink-1);
   cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+/* On a phone this is the only way to reach the navigation, and it was the one
+   control on the page with nothing to show a pointer had arrived. */
+.menu-toggle:hover {
+  background: var(--surface-2);
+}
+
+/* Held is not hovered, and on a phone this is the one control you can only
+   press. It answers with the same 2.5% press .btn gives, at the same 150ms. */
+.menu-toggle:active {
+  transform: scale(0.975);
 }
 
 .nav-scrim {
@@ -660,24 +693,36 @@ textarea {
    responds to me" means the thing you pressed tells you what it is doing
    without a toast appearing somewhere else. */
 .btn[data-state="loading"] {
-  color: transparent;
   pointer-events: none;
 }
 
-.btn[data-state="loading"]::after {
-  content: "";
-  position: absolute;
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent);
-  border-top-color: var(--paper);
-  border-radius: var(--r-pill);
-  animation: spin 620ms linear infinite;
+/* The label stays. It used to go transparent, which threw away the one piece of
+   copy someone waiting actually needs: app.js has just swapped it for the
+   button's data-busy-label, so the button said nothing at all while it worked. */
+.btn[data-state="loading"] > .ico {
+  display: none;
 }
 
-.btn-primary[data-state="loading"]::after {
-  border-color: color-mix(in srgb, var(--paper) 30%, transparent);
-  border-top-color: var(--paper);
+/* The spinner takes the icon's slot in the row rather than floating over the
+   text, so it covers neither the label nor anything beside it. It is sized in em
+   to match .ico exactly, so a button that had a glyph keeps the width it had and
+   nothing inside it moves; currentColor follows the button's own ink, which is
+   why one rule reads on a quiet button and a primary one alike. */
+.btn[data-state="loading"]::after {
+  /* The reduced-motion block at the end of this file puts this animation back
+     for progress indicators and reads the speed from here rather than repeating
+     the number, so the two can never drift apart. */
+  --busy-spin-dur: 620ms;
+  content: "";
+  order: -1;
+  flex: none;
+  box-sizing: border-box;
+  width: 1.125em;
+  height: 1.125em;
+  border: 1.5px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top-color: currentColor;
+  border-radius: var(--r-pill);
+  animation: spin var(--busy-spin-dur) linear infinite;
 }
 
 .btn {
@@ -871,6 +916,12 @@ select {
   height: 1rem;
   margin: 0;
   accent-color: var(--ink-1);
+  /* The rule that gives text fields their 150ms focus ring stops at type=email,
+     so a native checkbox was the one control whose ring snapped on under the
+     keyboard while every other field eased. Same tokens, same duration. */
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 
 /* The disclosure head. It is a button wearing a heading's clothes, so it needs
@@ -889,11 +940,20 @@ select {
   letter-spacing: -0.012em;
   text-align: left;
   cursor: pointer;
+  transition: transform var(--dur) var(--ease);
 }
 
 .disclosure-head .ico {
   color: var(--ink-3);
-  transition: transform var(--dur) var(--ease);
+  transition:
+    color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+/* The head is already --ink-1, so its own :hover colour was a no-op and the row
+   looked inert. The chevron answers instead, exactly as a nav row's icon does. */
+.disclosure-head:hover .ico {
+  color: var(--ink-2);
 }
 
 .disclosure-head[aria-expanded="true"] .ico {
@@ -902,6 +962,13 @@ select {
 
 .disclosure-head:hover {
   color: var(--ink-1);
+}
+
+/* It lights up on hover and did nothing at all while held, which on a control
+   whose whole job is "press me to see more" was the wrong signal to omit. Same
+   press .btn gives: 2.5%, 150ms. */
+.disclosure-head:active {
+  transform: scale(0.975);
 }
 
 /* The builder's step markers. Numbering earns its place here and nowhere else:
@@ -928,14 +995,6 @@ select {
   font-size: var(--t-lead);
   font-weight: 620;
   letter-spacing: -0.012em;
-}
-
-/* The optional part of the form. A soft plane rather than a border: it is
-   optional, so it should not claim the same weight as the two required steps. */
-.disclosure-panel {
-  padding: var(--s4);
-  border-radius: var(--r-band);
-  background: var(--surface-2);
 }
 
 .step-num {
@@ -1022,9 +1081,156 @@ select {
   gap: var(--s2);
 }
 
+/* -----------------------------------------------------------------------------
+   Panels that open
+   Three panels in the search form used to arrive between one frame and the
+   next: the optional third step (#fein), the builder behind "Selbst zusammen-
+   stellen" (#builder), and the brand autocomplete (.combo-list). None of them
+   had a transition at all, so each went from not existing to fully open in a
+   single layout pass. The eye reads that as the page jumping, not as a thing
+   opening.
+
+   The box grows rather than the contents merely fading. A scale would have to
+   scale text — blurry mid-flight, the wrong size for at least one frame — and
+   would not push the page below it down as it grew, so everything under the
+   panel would jump at the end instead. grid-template-rows 0fr -> 1fr grows the
+   real box and the page reflows under it continuously.
+
+   Two details are load-bearing and neither is obvious:
+
+   The padding is animated on the outer box. It has to be: the padding lives
+   outside the grid track, so a 0fr track with a 1rem-padded child collapses to
+   the child's 2rem of padding and leaves an empty coloured band in the page.
+   Animating padding-block with the track takes both to zero together.
+
+   @starting-style only applies to an element whose *own* display transitions,
+   so the fade and the 8px rise have to live on the box being shown or hidden —
+   not on a wrapper inside it. A wrapper that was merely un-hidden by its
+   parent's display:none has no before-style, and the transition silently does
+   nothing: measured, opacity went straight to 1 with no intermediate frame.
+
+   `display ... allow-discrete` plus @starting-style is what keeps this in the
+   stylesheet rather than in app.js. `hidden` stays the single source of truth
+   for "is it open", so the JavaScript is untouched and the form still works
+   with it switched off.
+   -------------------------------------------------------------------------- */
+
+.disclosure-panel,
+#builder {
+  display: grid;
+  grid-template-rows: 0fr;
+  /* An author-level `display` outranks the user-agent [hidden] rule, so the
+     closed state has to say `display: none` itself. */
+  opacity: 0;
+  transition:
+    grid-template-rows var(--dur) var(--ease),
+    padding-block var(--dur) var(--ease),
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    display var(--dur) allow-discrete;
+}
+
+.disclosure-panel[hidden],
+#builder[hidden] {
+  display: none;
+}
+
+/* #fein is the optional part of the form: a soft plane rather than a border,
+   because it is optional and should not claim the weight of the two required
+   steps. Only the block axis is animated; the inline padding is constant
+   because the panel keeps its full width shut, which is what makes the reveal
+   read as a panel opening rather than a page rearranging. */
+.disclosure-panel {
+  padding-inline: var(--s4);
+  padding-block: 0;
+  border-radius: var(--r-band);
+  background: var(--surface-2);
+}
+
+.disclosure-panel:not([hidden]),
+#builder:not([hidden]) {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: none;
+  transition:
+    grid-template-rows var(--dur-slow) var(--ease),
+    padding-block var(--dur-slow) var(--ease),
+    opacity var(--dur-slow) var(--ease),
+    transform var(--dur-slow) var(--ease),
+    display var(--dur-slow) allow-discrete;
+}
+
+.disclosure-panel:not([hidden]) {
+  padding-block: var(--s4);
+}
+
+@starting-style {
+  .disclosure-panel:not([hidden]),
+  #builder:not([hidden]) {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    /* 8px. Further than this and it stops reading as a reveal and starts
+       reading as a slide, which is the thing this is meant not to be. */
+    transform: translateY(calc(var(--s2) * -1));
+  }
+
+  .disclosure-panel:not([hidden]) {
+    padding-block: 0;
+  }
+}
+
+/* The clipped edge. Nothing about it is visible at rest; it exists so the 0fr
+   track actually clips its content instead of letting it spill out. */
+.disclosure-panel > .panel-body,
+#builder > .panel-body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The autocomplete is deliberately not built like the two panels above, and the
+   difference is the point. It is not in the flow: it hangs over the field that
+   owns it, so a box growing from zero would show a one-line-high dropdown
+   sliding open and would push nothing anywhere. Opacity plus a 4px rise from
+   the field's edge is what makes it read as coming *from* the input instead of
+   appearing beside it. Same asymmetric timings. */
+.combo-list {
+  display: block;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    display var(--dur) allow-discrete;
+}
+
+.combo-list[hidden] {
+  display: none;
+  opacity: 0;
+  transform: translateY(calc(var(--s1) * -1));
+}
+
+.combo-list:not([hidden]) {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-slow) var(--ease),
+    transform var(--dur-slow) var(--ease),
+    display var(--dur-slow) allow-discrete;
+}
+
+@starting-style {
+  .combo-list:not([hidden]) {
+    opacity: 0;
+    transform: translateY(calc(var(--s1) * -1));
+  }
+}
+
 /* Loading skeletons. A sentence that is still loading looks exactly like a
    sentence that found nothing; a skeleton cannot be mistaken for an answer. */
 .skeleton {
+  /* Read by the reduced-motion block at the end of the file, for the same
+     reason and with the same guarantee as --busy-spin-dur. */
+  --loading-sweep-dur: 1.4s;
   display: block;
   width: 5rem;
   height: 1.75rem;
@@ -1036,7 +1242,23 @@ select {
     var(--surface-3) 80%
   );
   background-size: 240% 100%;
-  animation: shimmer 1.4s linear infinite;
+  animation: shimmer var(--loading-sweep-dur) linear infinite;
+}
+
+/* "Bar" here means the shape of the placeholder, and it used to say so by
+   borrowing the chart's own `.bar`. That rule sits ~800 lines further down the
+   sheet and uses a `background` shorthand, which resets `background-image` to
+   none — so it silently overrode the gradient above and the radius with it.
+   Measured on the running app: every skeleton in the app computed
+   `background-image: none`, a solid `--ink-1` fill and a 3px top radius, while
+   `background-position` still advanced 36 distinct values per second. The sweep
+   was running, correctly, on a gradient that was not there — so no loading
+   state in this app ever looked like it was loading, and the reduced-motion
+   carve-out for `.skeleton` was dead code for all eight of them.
+   `.skeleton` already carries the size, the radius and the gradient, so this
+   class only has to claim the shape and stay out of the way. */
+.skel-bar {
+  flex: none;
 }
 
 .skeleton-row {
@@ -1242,13 +1464,18 @@ select {
   color: var(--ink-1);
   font-size: var(--t-small);
   line-height: 1.45;
-  text-decoration: none;
+  /* The underline is always painted and always transparent, so it can fade in.
+     `text-decoration-line` does not interpolate, and toggling it on :hover is
+     what made this snap while the rest of the app eased. */
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--dur) var(--ease);
   /* The clamp reserves two lines whether the title needs one or two, so prices
      and feet stay on a shared baseline across a whole row of the grid. */
 }
 
 .tile-title:hover {
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 .tile-tags {
@@ -1281,12 +1508,18 @@ select {
 
 .tile-meta a {
   color: inherit;
-  text-decoration: none;
+  /* Painted and transparent, so both the ink and the underline can ease in
+     rather than arriving together in one frame. */
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition:
+    color var(--dur) var(--ease),
+    text-decoration-color var(--dur) var(--ease);
 }
 
 .tile-meta a:hover {
   color: var(--ink-1);
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 .tile-meta span {
@@ -1714,11 +1947,20 @@ tbody tr:hover {
   border-radius: var(--r-band);
   background: var(--surface-2);
   color: var(--ink-2);
+  /* A row has no background of its own to tint — it is a bare list item, and
+     padding one out would move the text — so the mark answers for it, taking the
+     same surface-2 to surface-3 step a button takes. Declared before the failed
+     rule below, which therefore keeps its red wash. */
+  transition: background-color var(--dur) var(--ease);
 }
 
 .event-mark .ico {
   width: 1rem;
   height: 1rem;
+}
+
+.event:hover .event-mark {
+  background: var(--surface-3);
 }
 
 /* Only the one outcome worth interrupting a scroll for. */
@@ -1765,13 +2007,15 @@ tbody tr:hover {
   overflow: hidden;
   color: var(--ink-1);
   font-size: var(--t-body);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: transparent;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: text-decoration-color var(--dur) var(--ease);
 }
 
 a.event-what:hover {
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 .event-money {
@@ -2447,6 +2691,33 @@ kbd {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* What the rule above guarantees is that nothing *moves*: no sliding, no
+     zooming, no scaling, no flying in from off-screen. It is not a promise to
+     make a working thing look idle, and the blanket `*` was doing exactly that
+     to the two controls on this page that exist only to say "still working" —
+     the spinner on a button that reads "Wird angelegt…" froze after a single
+     frame, so the one moment the interface owed the user an answer, it went
+     quiet and looked finished.
+
+     Both are given their animation back below, and neither is a movement: one
+     rotates a 1.125em ring inside its own box, the other slides a background
+     gradient inside a 5rem placeholder. Nothing in the layout moves, nothing
+     enters or leaves, nothing changes size. A person who asked for less motion
+     still gets a spinner that turns.
+
+     Specificity has to beat the `*` above, hence the attribute selector on the
+     first and the plain class on the second. The durations come from the same
+     custom properties the normal rules use, so the two cannot drift apart. */
+  .btn[data-state="loading"]::after {
+    animation-duration: var(--busy-spin-dur) !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .skeleton {
+    animation-duration: var(--loading-sweep-dur) !important;
+    animation-iteration-count: infinite !important;
   }
 
   .tile.is-arriving::before {

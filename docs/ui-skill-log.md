@@ -484,3 +484,307 @@ is no horizontal overflow at 375; and the mobile rail has a real `aria-label`'d 
 - **superdesign** — read partially, excluded from generation. It runs entirely through an
   external CLI and returns a canvas artefact; the output is not shippable Jinja and CSS.
 - **apple-design** — excluded by `AGENTS.md` §2. Not reached, and its absence is correct.
+
+### Pass ten — four control-level gaps, measured in the running app
+
+An audit pass found the loading button blank, the checkbox focus ring snapping,
+three link hovers snapping, and five hover targets that answered nothing at all.
+This pass fixed those four groups and nothing else. The visual identity is
+untouched: no new colour, no new type, no new layout, no new token.
+
+- **animate** (global)
+  - invoked: read in full, off disk, before the first edit. No `skill` tool is
+    exposed to this session, so this is a degraded substitute and is logged as one.
+  - mechanism: file-read
+  - extracted: the tool ladder — hover and state changes on a CSS transition,
+    entry on `@starting-style`, predetermined motion on a CSS animation — and its
+    own instruction to pick the cheapest tool that works rather than install a
+    motion library. Also the em-to-em rule that a popover scales from its
+    trigger, and that reduced motion ships with the animation rather than after it.
+  - decided: no dependency was added. The project has no bundler and no npm
+    runtime, so a motion library would have meant a vendored bundle or a CDN
+    script in a self-hosted offline tool, and every one of the four gaps is a
+    transition on a property the browser already animates. All new motion reuses
+    `--dur`, `--dur-slow`, `--ease` and `--ease-out`; no new easing curve and no
+    new duration was introduced, so the sheet still holds exactly two curves.
+  - deviation: the spinner keeps `transform` and `opacity` only, per the
+    GPU-only rule, and its size is expressed in `em` so it occupies the box the
+    icon it replaces occupied.
+  - where: `src/vinted_sniper/web/static/app.css:687-712`, `:902-913`,
+    `:1283-1300`, `:1334-1350`, `:1833-1852`.
+
+- **review-animations** (global)
+  - invoked: read in full, off disk, before the first edit; used as the bar the
+    changes were measured against rather than as a diff review.
+  - mechanism: file-read
+  - extracted: the ten non-negotiable standards, of which three did real work
+    here. Interruptibility: a state the user can fire twice must transition rather
+    than keyframe, which is why nothing here is a `@keyframes`. Accessibility:
+    the OS preference is honoured, which is why this pass did not touch the
+    blanket reduced-motion rule and left that finding open instead. Purpose and
+    frequency: a hover is tens-of-times-a-day, so it gets near-imperceptible
+    motion — a tint and a colour, never a lift and never a glow.
+  - decided: every fix transitions `background-color`, `color`, `border-color`,
+    `box-shadow` or `text-decoration-color` at the existing 150ms. No new
+    shadow was introduced anywhere; the current-page nav item deepens the inset
+    ring it already had instead of gaining a drop shadow, which is the one place
+    a "make it respond" change could have read as decoration.
+  - deviation: none.
+  - where: `src/vinted_sniper/web/static/app.css:357-375`, `:400-410`, `:444-447`,
+    `:590-592`, `:942-944`, `:1766-1795`.
+
+- **improve-animations** (global)
+  - invoked: read in full, including `AUDIT.md`, during the audit pass that
+    produced the ranked list this pass worked from.
+  - mechanism: file-read
+  - extracted: Hard Rule 5 — do not re-litigate a decision a comment already
+    documents. The audit had flagged cold listing cards for giving up their hover
+    lift; the sheet says why in as many words ("history does not float"), so that
+    finding was struck rather than acted on. The audit's category 8, missed
+    opportunities, is also what separated the three panels that still teleport
+    open from the control-level gaps fixed here.
+  - decided: `.tile.is-cold` was left exactly as it is. The activity row was not
+    given a background tint of its own: it is a bare list item with no horizontal
+    padding, so tinting it would either hug the text or move the text, and the
+    hover was routed to the mark inside it instead — a background change on an
+    element that already owns a background.
+  - deviation: none.
+  - where: `src/vinted_sniper/web/static/app.css:1766-1795`; the strike is on
+    `.tile.is-cold:hover`, deliberately unchanged.
+
+- **impeccable** (global)
+  - invoked: opened for scope only, to confirm it had an `animate.md` reference
+    and a `craft-floor.md` to read before an edit. Neither was opened, and the
+    setup step its own instructions require — running its `context` launcher —
+    was not run.
+  - mechanism: file-read
+  - extracted: nothing. This was a scope check, not a source of rules.
+  - decided: nothing in this pass rests on it. The rules applied are the three
+    motion skills above, and they are the ones `AGENTS.md` §2 puts in the
+    conditional tier for exactly this kind of work.
+  - deviation: `reference/craft-floor.md` is required "immediately before any UI
+    edit" by the skill's own setup, and was not read. Stated here rather than
+    left implied, because this entry is the only place a reader would find out.
+  - where: no file in the implementation rests on this skill.
+
+### Still open after this pass
+
+- `prefers-reduced-motion: reduce` freezes the loading spinner. The blanket
+  `* { animation-iteration-count: 1 !important }` catches the infinite `spin`, so
+  the ring renders once in 0.01ms and stops while the request is still in flight.
+  Measured, not inferred: `getAnimations()` returns an empty array. This was not
+  in the requested scope of this pass, so it was left alone deliberately rather
+  than fixed quietly.
+- The reduced-motion rule still kills colour and opacity transitions wholesale,
+  so every hover and focus response snaps under the OS setting.
+- No `@media (hover: hover) and (pointer: fine)` anywhere in the sheet.
+- At 390px the closed drawer leaves nine of the first twelve tab stops
+  off-canvas: focus lands on the brand, the five nav links and the three theme
+  options while they are translated out of sight. Found while verifying the menu
+  toggle, pre-existing, and not touched here.
+- "Änderungen speichern" carries `data-busy-label` but has no `<span>`, so
+  `app.js` cannot swap its text and the attribute is dead. The button is now
+  legible while loading, but its copy does not change.
+
+## 2026-10-04
+
+- observability: not-machine-checkable — unchanged from the two entries above.
+  This session was given no `skill` tool, no `/skill:` list, and no invocation
+  log on disk; every receipt below is a `file-read`, and this suite can only
+  check that they are declared and self-consistent, never that they happened.
+
+### Pass eleven — three panels that teleported, a progress indicator that
+### froze, and two pressable things with no press
+
+Closed every gap the pass-ten audit left open. The visual identity is untouched:
+no new colour, no new type, no new layout, no new token, no dependency. The only
+values written into the sheet are `1.125em`, already used by the spinner, and
+`0.975`, already used by `.btn:active`.
+
+- **animate** (global)
+  - invoked: read in full this session, `SKILL.md` and `RECIPES.md`, off disk.
+    No `skill` tool is exposed here, so this is a degraded substitute and is
+    logged as one.
+  - mechanism: file-read
+  - extracted: three rules that decided the work. The build sequence's first two
+    steps put both panels in the "occasional" tier and name their purpose —
+    *spatial consistency* and *preventing a jarring change* — which is why they
+    animate at all and why they get no delight budget. Step 4 restricts the
+    toolbox to `transform`/`opacity`, with `height` tolerated *only* for
+    accordions, and forbids `scale(0)`; the dropdown recipe's `scale(0.95)` was
+    not used, because the brief asked for no scale-up-from-nothing and, more to
+    the point, because scaling text mid-flight is blurry and would not push the
+    page below the dropdown down as it grew. Step 6 gives the asymmetric rule —
+    slow on the deliberate phase, snappy on the system response — and step 7
+    says reduced motion ships *with* the animation, not as a follow-up.
+  - decided: the two panels grow their real box via `grid-template-rows` from
+    `0fr` to `1fr` plus `padding-block`, because that is the accordion case step
+    4 explicitly tolerates and it is the only one of the three that reflows the
+    page continuously. The autocomplete is opacity plus a 4px rise and no height
+    change at all, because it is an overlay that pushes nothing anywhere. Open
+    is `--dur-slow`, close is `--dur`, matching the lightbox's existing
+    `--dur-slow`/`120ms` asymmetry rather than inventing a second one.
+  - deviation: `--dur-slow` is 260ms and step 5's table puts dropdowns at
+    150–250ms. 260ms was kept, because hard rule 3 says extend the codebase's
+    tokens rather than fork them and the lightbox already opens at `--dur-slow`.
+    The 10ms over the table is recorded here rather than hidden. Both toggles
+    are real `<button>`s and therefore keyboard-operable, which
+    `improve-animations` asks to be hunted for; that rule's stated target is
+    keyboard *shortcuts* on 100+/day actions, and a disclosure panel is
+    occasional, so the motion stayed. That is a judgement call and is written
+    down as one.
+  - where: `src/vinted_sniper/web/static/app.css:1084-1225` ("Panels that open"),
+    `:1196-1225` (`.combo-list`); the two `.panel-body` wrappers in
+    `src/vinted_sniper/web/templates/_search_form.html:47` and `:152`.
+
+- **review-animations** (global)
+  - invoked: read this session — `SKILL.md` and `STANDARDS.md` in full.
+  - mechanism: file-read
+  - extracted: the press rule, which is the whole of the third claim: "Button
+    press feedback. `transform: scale(0.97)` on `:active`, `transition: transform
+    160ms ease-out`. Subtle (0.95–0.98). **Applies to any pressable element.**"
+    And the Never-Ship row it completes: missing `prefers-reduced-motion`.
+  - decided: `.disclosure-head:active` and `.menu-toggle:active` both get
+    `transform: scale(0.975)` at the sheet's `--dur` and `--ease`. The skill's
+    0.97/160ms was not adopted, because a press response that does not match the
+    button beside it is worse than one that is five thousandths off a table, and
+    0.975 already exists in this sheet. Measured, not assumed: both now hold at
+    `matrix(0.975, 0, 0, 0.975, 0, 0)`, identical to `.btn`, and return to
+    `none` on release and on pointer-leave.
+  - deviation: none.
+  - where: `src/vinted_sniper/web/static/app.css:594-598` and `:964-970`, plus
+    the `transition` additions on `.menu-toggle` and `.disclosure-head`.
+
+- **improve-animations** (global)
+  - invoked: read this session — `SKILL.md`, `AUDIT.md` and `PLAN-TEMPLATE.md`
+    off disk. Its `context` launcher was not run; the harness has no skill
+    runtime, and that is stated rather than implied.
+  - mechanism: file-read
+  - extracted: `AUDIT.md` §6's line, which decided the second claim — "Reduced
+    motion means fewer and gentler animations, **not zero** — keep transitions
+    that aid comprehension, remove position changes" — and the sentence right
+    after it naming "reduced-motion implementations that nuke all feedback" as
+    something to hunt for. §8's "Spatially-connected UI (a panel that appears
+    from a trigger) with no motion explaining where it came from" is the finding
+    the three panels were.
+  - decided: the blanket `*` rule in the reduced-motion block stays, because the
+    guarantee it gives is real. Two selectors are carved out of it: the loading
+    button's `::after` ring and `.skeleton`. Their durations are read from
+    `--busy-spin-dur` and `--loading-sweep-dur` rather than retyped, so the
+    carve-out and the normal rule cannot drift apart. Verified in the running app
+    under `prefers-reduced-motion: reduce`: 25 of 25 sampled frames carry a
+    different rotation, `getAnimations()` reports `spin@::after:running`, and in
+    the same page `#fein` shows 2 distinct heights — instant — where the default
+    mode shows 17. Carving `.skeleton` out turned out to be necessary but not
+    sufficient: the skeleton had no gradient to sweep (below), so the carve-out
+    was restored and then the missing gradient was found and fixed with it.
+  - deviation: stated, because the letter of the rule and this change disagree.
+    §6 says reduced motion should "remove position changes", and its example
+    keeps only a fade; a spinner rotates. This restores rotation on both
+    indicators on the grounds that a ring which stops turning reads as a finished
+    request, which is the failure the brief named and the one §6's "not zero"
+    exists to prevent. Nothing enters, leaves, resizes or shifts: the ring turns
+    inside a fixed 1.125em box and the skeleton's gradient slides inside a fixed
+    placeholder. A reader who thinks that is still too much movement can strike
+    these two rules without touching anything else.
+  - where: `src/vinted_sniper/web/static/app.css:2670-2710`, plus the `.skel-bar`
+    rule at `:1248-1259` and the eight class changes in
+    `src/vinted_sniper/web/templates/_search_form.html`.
+
+- **web-design-guidelines**, **ui-ux-pro-max**, **frontend-design**, **hallmark**,
+  **design-taste-frontend**, **high-end-visual-design**, **impeccable** (global)
+  - invoked: not re-read this pass. Read and logged in passes one, eight and ten,
+    which are the entries above; nothing decided here contradicts them.
+  - mechanism: file-read
+  - extracted: nothing new. The reason is stated rather than left to inference:
+    this pass changed no colour, no type, no spacing, no layout and no token. The
+    three things it changed — when a panel becomes visible, whether a spinner
+    turns, and whether a press is acknowledged — are motion questions, and the
+    motion skills are the ones that answer them. Re-reading a colour and type
+    system in order to change a `transform` would be reading for the receipt
+    rather than for the work.
+  - decided: nothing in this pass rests on any of them. The claim that these
+    seven were consulted is not stretched to cover work they did not inform.
+  - deviation: `impeccable`'s own setup step — running its `context` launcher,
+    and reading `reference/craft-floor.md` immediately before an edit — was not
+    performed, for the same reason it was not performed in pass ten: the harness
+    exposes no skill runtime. It is the standing gap in this log and is not
+    quietly closed by re-filing the entry.
+  - where: no file in this pass rests on any of these seven.
+
+### What the measurements showed, including where the brief was wrong
+
+- The claim that each panel went from closed to open "in one distinct state" was
+  right about the behaviour and wrong about every number. Frame-sampled rather
+  than inferred: `#fein` is 17 distinct heights over 39 frames, `#builder` 17
+  over 40, and the autocomplete 17 distinct opacity values and 17 distinct
+  transforms over 24 frames. Nothing snaps.
+- "0 → 393px" for the builder was not its height. Its settled height is
+  **1241.72px** at 1440 and **1179.84px** at 390. A pass-ten run against an
+  earlier data state measured 646.47px, so that number tracks how much taxonomy
+  the picker had loaded, not the animation. `#fein` settles at 143.84px on
+  desktop and 429.38px on mobile.
+- "0 → 191px" for the autocomplete was also not its height. Real typing into
+  `#b-brand` returns ten brand rows in a **97.75px** box. The 191px figure, and
+  the single error row behind it, came from a broken harness call that typed the
+  CSS selector into the field instead of a query string.
+- The `running: []` reading for the spinner was a broken instrument rather than a
+  false claim. `document.getAnimations()`, called in one `eval` right after a
+  state change, does not list a pseudo-element's animation. Sampling
+  `getComputedStyle(btn, '::after').transform` across frames does: 25 of 25
+  distinct. The gap underneath the reading was real — under `reduce` the rule
+  collapsed both indicators to `0.01ms` and one iteration — and it is fixed.
+- The skeleton was the other half of the second claim, and it was already broken
+  before this pass. Every skeleton in the app is written
+  `class="skeleton bar"`, and `.bar` is the *chart* bar, which sits ~800 lines
+  later in the sheet with a `background` shorthand — so it reset
+  `background-image` to `none` on all eight of them. Measured before the fix:
+  `background-image: none`, a flat `--ink-1` fill, `border-radius: 3px 3px 0 0`,
+  while `background-position` still advanced 36 distinct values per second. The
+  sweep was running perfectly on a gradient that was not there. No loading state
+  in this app had ever looked like it was loading, and the reduced-motion
+  carve-out for `.skeleton` was dead code for every real instance of it — which
+  makes "25 of 25 distinct background positions", on its own, a claim that was
+  true and misleading. The class is now `.skel-bar`; after the fix the same
+  measurement reports `linear-gradient(...)`, `background-size: 240% 100%`,
+  `border-radius: 10px`, and 42 to 43 distinct positions in both motion modes.
+  The activity chart's own bars are unaffected (28 bars, 18 zero-height,
+  `rgb(214, 209, 199)`), because the two never shared a template.
+- `:active` on `.disclosure-head` and `.menu-toggle` really was absent. Before
+  this pass the sheet's only `:active` rule was the one on `.btn`.
+- One regression was introduced and caught by the before/after pixel diff rather
+  than by reading the code: the `.panel-body` wrapper added 32px of width inside
+  the already-padded panel. Fixed by giving the panel `padding-inline` instead,
+  after which the diff can no longer tell the two states apart — 0 differing
+  pixels in both closed states, and 14 to 108 pixels of pure edge antialiasing,
+  max channel delta 1, in the open ones.
+- Two further failures were the instruments, and are recorded because both looked
+  like product bugs first. `:active` cannot be confirmed by walking
+  `document.styleSheets`: CSS nesting gives every rule a truthy `cssRules`, so
+  the walk finds nothing and reports absent rules that are present. And at 390px,
+  pressing `.menu-toggle` opens the nav drawer, whose scrim then covers the page
+  and swallows the next synthetic press — so a following `.disclosure-head` press
+  reads `none` for a reason that has nothing to do with the head. Measured on a
+  fresh page with the drawer shut, it holds at 0.975 like the desktop.
+
+### Still open after this pass
+
+- The reduced-motion rule still kills colour and opacity transitions wholesale,
+  so every hover and focus response snaps under the OS setting. `AUDIT.md` §6
+  says to keep transitions that aid comprehension, so that rule would restore
+  more than this pass did; it was not applied here because the brief scoped the
+  carve-out to progress indicators.
+- No `@media (hover: hover) and (pointer: fine)` anywhere in the sheet, which
+  `animate`'s Never-Ship table and `AUDIT.md` both list.
+- At 390px the closed drawer leaves nine of the first twelve tab stops
+  off-canvas: focus lands on the brand, the five nav links and the three theme
+  options while they are translated out of sight. Pre-existing WCAG 2.4.7, found
+  while verifying the menu toggle, and still not touched.
+- "Änderungen speichern" carries `data-busy-label` but has no `<span>`, so
+  `app.js` cannot swap its text and the attribute is dead.
+- `builder.js` never sets `aria-expanded` on `#b-brand`, so the combobox reports
+  `aria-expanded="false"` with ten options visibly open beneath it. Found while
+  driving the dropdown for real this pass; a JS fix, not a CSS one.
+- `.disclosure-row` panels in the searches table are a fourth disclosure-shaped
+  element and were deliberately left unanimated, so the sheet now has two
+  behaviours for the same shape.
